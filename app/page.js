@@ -5,7 +5,9 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import { collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export default function Home() {
@@ -46,6 +48,11 @@ export default function Home() {
     setItems(items.filter(item => item.id !== id));
   };
 
+  const updateQuantity = async (id, newQuantity) => {
+    await updateDoc(doc(db, "pantry", id), { quantity: parseInt(newQuantity) });
+    setItems(items.map(item => item.id === id ? { ...item, quantity: newQuantity } : item));
+  };
+
   return (
     <Box
       width="100vw"
@@ -54,14 +61,29 @@ export default function Home() {
       flexDirection="column"
       justifyContent="center"
       alignItems="center"
+      bgcolor="#f9f9f9"
     >
-      <Box mb={2}>
-        <button onClick={() => {
-          const newItemName = prompt('Enter the new item:');
-          if (newItemName) setNewItem(newItemName);
-        }}>Add Item</button>
+      <Box mb={2} display="flex" justifyContent="center">
+        <TextField
+          label="New Item"
+          variant="outlined"
+          value={newItem}
+          onChange={(e) => setNewItem(e.target.value)}
+          sx={{ marginRight: 2 }}
+        />
+        <TextField
+          label="Quantity"
+          variant="outlined"
+          type="number"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          sx={{ marginRight: 2 }}
+        />
+        <Button variant="contained" color="primary" onClick={addItem}>
+          Add Item
+        </Button>
       </Box>
-      <Typography variant="h3">Pantry Items</Typography>
+      <Typography variant="h3" gutterBottom>Pantry Items</Typography>
       <Stack width="800px" spacing={2} overflow={'auto'}>
         {items.map(({ id, name, quantity }) => (
           <Paper
@@ -73,7 +95,7 @@ export default function Home() {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              bgcolor: '#f0f0f0',
+              bgcolor: '#fff',
             }}
           >
             <Box>
@@ -83,14 +105,18 @@ export default function Home() {
               <Typography>Quantity: {quantity}</Typography>
             </Box>
             <Box display="flex" alignItems="center">
-              <input
+              <TextField
                 type="number"
                 value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder="Quantity"
-                style={{ marginRight: '10px' }}
+                onChange={(e) => updateQuantity(id, e.target.value)}
+                label="Quantity"
+                variant="outlined"
+                size="small"
+                sx={{ marginRight: 2 }}
               />
-              <button onClick={() => removeItem(id)}>Remove</button>
+              <Button variant="contained" color="secondary" onClick={() => removeItem(id)}>
+                Remove
+              </Button>
             </Box>
           </Paper>
         ))}
