@@ -8,17 +8,6 @@ import Typography from '@mui/material/Typography';
 import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
-const item = [
-  'tomato',
-  'potato',
-  'onion',
-  'garlic',
-  'ginger',
-  'carrot',
-  'kale',
-  'cucumber'
-];
-
 export default function Home() {
   const [items, setItems] = useState([]);
   const [newItem, setNewItem] = useState('');
@@ -32,7 +21,7 @@ export default function Home() {
           id: doc.id,
           ...doc.data()
         }));
-        console.log("Fetched items:", itemsList); // Log the fetched items
+        console.log("Fetched items:", itemsList);
         setItems(itemsList);
       } catch (error) {
         console.error("Error fetching items:", error);
